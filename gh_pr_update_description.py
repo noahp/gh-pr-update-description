@@ -28,9 +28,12 @@ def get_commit_info():
 
     # get commit title + message
     commit = repo.commit("HEAD")
-    assert commit.message.splitlines()[1] == "", "Need a blank line after commit title"
     title = commit.summary
-    message = "\n".join(commit.message.splitlines()[2:])
+    if len(commit.message.splitlines()) > 1:
+        skipline = commit.message.splitlines()[1] == ""
+        message = "\n".join(commit.message.splitlines()[2 if skipline else 1:])
+    else:
+        message = None
 
     # get github api token
     with repo.config_reader() as reader:
@@ -71,10 +74,11 @@ def get_pr_for_branch(gitinfo):
 
 
 def update_description(pr, title, message):
-    pr.edit(title=title, body=message)
+    pr.edit(title=title, body=message or github.GithubObject.NotSet)
 
 
-if __name__ == "__main__":
+def main():
+    """cli entrance point"""
     # get git info
     gitinfo = get_commit_info()
 
@@ -95,3 +99,7 @@ if __name__ == "__main__":
         exit(-1)
 
     click.echo((click.style("PR successfully updated 🎉 !", fg="green")))
+
+
+if __name__ == "__main__":
+    main()
