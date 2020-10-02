@@ -9,6 +9,14 @@ pyversions](https://img.shields.io/pypi/pyversions/gh-pr-update-description.svg?
 Python script to attempt to refresh the github PR description with the top
 commit.
 
+## Usage
+
+Requires a github token available from git config, eg:
+
+```bash
+git config github.apitoken <your token>
+```
+
 ```bash
 ❯ pip install gh-pr-update-description
 
