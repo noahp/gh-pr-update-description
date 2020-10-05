@@ -104,10 +104,9 @@ def main(yes=False):
             show_default=True,
         ):
             update_description(pr, gitinfo.title, gitinfo.message)
+            click.echo((click.style("PR successfully updated 🎉 !", fg="green")))
     except click.exceptions.Abort:
-        exit(-1)
-
-    click.echo((click.style("PR successfully updated 🎉 !", fg="green")))
+        pass
 
 
 if __name__ == "__main__":
