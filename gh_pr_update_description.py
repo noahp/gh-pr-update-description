@@ -28,9 +28,14 @@ def get_commit_info():
 
     # get commit title + message
     commit = repo.commit("HEAD")
-    assert commit.message.splitlines()[1] == "", "Need a blank line after commit title"
     title = commit.summary
-    message = "\n".join(commit.message.splitlines()[2:])
+
+    message = github.GithubObject.NotSet
+    commitlines = commit.message.splitlines()
+    if len(commitlines) > 1:
+        message = commitlines[1:]
+        # strip leading and trailing blank lines
+        message = "\n".join(commitlines[1:]).strip("\n").rstrip("\n")
 
     # get github api token
     with repo.config_reader() as reader:
@@ -74,7 +79,11 @@ def update_description(pr, title, message):
     pr.edit(title=title, body=message)
 
 
-if __name__ == "__main__":
+@click.version_option()
+@click.command()
+@click.option("--yes", help="Skip prompt, just apply the change", is_flag=True)
+def main(yes=False):
+    """Update GitHub PR description from current repo branch"""
     # get git info
     gitinfo = get_commit_info()
 
@@ -83,7 +92,7 @@ if __name__ == "__main__":
 
     # update description on pr
     try:
-        if click.confirm(
+        if yes or click.confirm(
             "About to update description on {}, ready?".format(
                 click.style(pr.html_url, fg="blue", bold=True)
             ),
@@ -95,3 +104,7 @@ if __name__ == "__main__":
         exit(-1)
 
     click.echo((click.style("PR successfully updated 🎉 !", fg="green")))
+
+
+if __name__ == "__main__":
+    main()
