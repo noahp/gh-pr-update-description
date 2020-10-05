@@ -19,8 +19,7 @@ class GitInfo:
     message: str
     apitoken: str
     branch: str
-    org: str
-    repo: str
+    repos: list
 
 
 def get_commit_info():
@@ -45,30 +44,35 @@ def get_commit_info():
         apitoken
     ), "Error: set a github apitoken like `git config github.apitoken <your token>`"
 
-    # get org + repo name from remote url
-    url = list(repo.remote().urls)[0]
-    m = re.match(r".*[:/](.*)/(.*)\.git$", url)  # yolo...
-    org, reponame = m.groups()
+    # get org + repo names from remote urls
+    repos = []
+    for remote in repo.remotes:
+        url = remote.url
+        m = re.match(r".*[:/](.*)/(.*)\.git$", url)  # yolo...
+        org, reponame = m.groups()
+        repos.append("{}/{}".format(org, reponame))
 
     return GitInfo(
         title=title,
         message=message,
         apitoken=apitoken,
         branch=repo.active_branch,
-        org=org,
-        repo=reponame,
+        repos=repos,
     )
 
 
 def get_pr_for_branch(gitinfo):
     g = github.Github(gitinfo.apitoken)
-    repo = g.get_repo("{}/{}".format(gitinfo.org, gitinfo.repo))
-    pulls = repo.get_pulls()
+    pulls = []
+    for reponame in gitinfo.repos:
+        repo = g.get_repo(reponame)
+        pulls.append(repo.get_pulls())
 
     pr = None
-    for pull in pulls:
-        if pull.head.ref == str(gitinfo.branch):
-            pr = pull
+    for pull_list in pulls:
+        for pull in pull_list:
+            if pull.head.ref == str(gitinfo.branch):
+                pr = pull
 
     assert pr, "Can't find matching pr for {}".format(gitinfo.branch)
 

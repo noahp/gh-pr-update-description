@@ -15,7 +15,7 @@ with io.open("README.md", "rt", encoding="utf8") as readmefile:
 
 setup(
     name="gh-pr-update-description",
-    version="0.1.2",
+    version="0.1.3",
     description="Update Github PR description with top commit title + body",
     author="Noah Pendleton",
     author_email="2538614+noahp@users.noreply.github.com",
