@@ -48,9 +48,9 @@ def get_commit_info():
     repos = []
     for remote in repo.remotes:
         url = remote.url
-        m = re.match(r".*github\.com/(.*)/(.*)(?=\.git)?$", url)  # yolo...
+        m = re.match(r".*github\.com[:/](.*?)\/(.*?)(\.git)?$", url)  # yolo...
         assert m, "Error couldn't parse org+reponame from {}".format(url)
-        org, reponame = m.groups()
+        org, reponame, _ = m.groups()
         repos.append("{}/{}".format(org, reponame))
 
     return GitInfo(
