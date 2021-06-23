@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import re
 import sys
 from dataclasses import dataclass
@@ -22,11 +21,11 @@ class GitInfo:
     repos: list
 
 
-def get_commit_info():
+def get_commit_info(commitish):
     repo = git.Repo("./")
 
     # get commit title + message
-    commit = repo.commit("HEAD")
+    commit = repo.commit(commitish)
     title = commit.summary
 
     message = github.GithubObject.NotSet
@@ -87,10 +86,16 @@ def update_description(pr, title, message):
 @click.version_option()
 @click.command()
 @click.option("--yes", help="Skip prompt, just apply the change", is_flag=True)
-def main(yes=False):
+@click.option(
+    "--commitish",
+    help="Specify commit-ish to use for description message",
+    default="HEAD",
+    show_default=True,
+)
+def main(yes, commitish):
     """Update GitHub PR description from current repo branch"""
     # get git info
-    gitinfo = get_commit_info()
+    gitinfo = get_commit_info(commitish)
 
     # try to find pr for this branch
     pr = get_pr_for_branch(gitinfo)
