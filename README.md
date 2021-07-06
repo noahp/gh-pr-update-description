@@ -9,6 +9,16 @@ pyversions](https://img.shields.io/pypi/pyversions/gh-pr-update-description.svg?
 Python script to attempt to refresh the github PR description with the top
 commit.
 
+_Note: the [`gh` cli tool](https://github.com/cli/cli) permits pretty similar
+functionality (plus a TON more), via for example:_
+
+```bash
+# use git log to get the current commit message subject + body, and pass to gh
+gh pr edit \
+  --title "$(git log -n1 --format='%s')" \
+  --body "$(git log -n1 --format='%b')"
+```
+
 ## Usage
 
 Requires a github token available from git config, eg:
